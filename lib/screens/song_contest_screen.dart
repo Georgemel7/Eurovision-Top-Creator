@@ -140,7 +140,7 @@ class _SongContestState extends State<SongContest> {
     int second = target.second - current.second;
     int minute = target.minute - current.minute;
     int hour = target.hour - current.hour;
-    int day = target.day - current.day;
+    int day = target.getTimeInDays() - current.getTimeInDays();
     int getSecond() {
       if (second < 0) {
         second += 60;
@@ -195,7 +195,7 @@ class _SongContestState extends State<SongContest> {
     'Sweden'
   ];
   TimeAndDate finalTime = TimeAndDate(
-      day: 11, month: 5, year: 2024, second: 0, hour: 21, minute: 0);
+      day: 10, month: 5, year: 2025, second: 0, hour: 21, minute: 0);
   TimeAndDate currentTime = TimeAndDate(
       day: DateTime.now().day,
       month: DateTime.now().month,

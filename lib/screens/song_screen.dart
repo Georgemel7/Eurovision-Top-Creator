@@ -268,6 +268,7 @@ class _SongScreenState extends State<SongScreen> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                         child: DefButton(
+                          tonal: true,
                           onPressed: () {
                             if (!nextButtonWasPressed) {
                               rearrangingSongsToAddList.add(
@@ -287,6 +288,7 @@ class _SongScreenState extends State<SongScreen> {
                           },
                           text: 'Next',
                           outlineBorderRadius: true,
+                          //TODO: remove visibility
                         )
                       ),
                     ),

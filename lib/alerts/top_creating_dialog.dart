@@ -2,11 +2,12 @@ import 'package:eurovision_top_creator/alerts/save_text_field_alert.dart';
 import 'package:eurovision_top_creator/constants.dart';
 import 'package:flutter/material.dart';
 
+import '../components/next_button.dart';
+
 class TopCreatingMenuDialog extends StatelessWidget {
   TopCreatingMenuDialog(this.screenContext);
   final BuildContext screenContext;
-  final MaterialStateProperty<Size> buttonSize =
-      MaterialStateProperty.resolveWith<Size>((states) => const Size(300, 60));
+  final double buttonHeight = 60;
   final Widget betweenButtonGap = const SizedBox(height: 15);
 
   final SaveTextFieldAlert saveTextFieldAlert = SaveTextFieldAlert();
@@ -16,43 +17,35 @@ class TopCreatingMenuDialog extends StatelessWidget {
       title: const Text('Menu'),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
+        DefButton(
+          height: buttonHeight,
+          outlineBorderRadius: true,
+          color: Colors.red,
           onPressed: () {
             Navigator.pop(context);
             Navigator.popAndPushNamed(screenContext, '/');
           },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                (states) =>
-                    const Color.fromRGBO(255, 89, 89, 0.796078431372549)),
-            minimumSize: buttonSize,
-          ),
-          child: const Text('Cancel top creation'),
+          text: 'Cancel top creation',
         ),
         betweenButtonGap,
-        TextButton(
+        DefButton(
+          height: buttonHeight,
+          outlineBorderRadius: true,
           onPressed: () {
             Navigator.pop(context);
             showDialog(
                 context: context, builder: (context) => SaveTextFieldAlert());
           },
-          style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                  (states) => kThemeColor),
-              minimumSize: buttonSize),
-          child: const Text('Save'),
+          text: 'Save',
         ),
         betweenButtonGap,
-        TextButton(
+        DefButton(
+          height: buttonHeight,
+          outlineBorderRadius: true,
           onPressed: () {
             Navigator.pop(context);
           },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                (states) => kThemeColor),
-            minimumSize: buttonSize,
-          ),
-          child: const Text('Close menu'),
+          text: 'Close menu',
         ),
       ],
     );

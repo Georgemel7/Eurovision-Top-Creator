@@ -27,7 +27,7 @@ class _MyTopScreenState extends State<MyTopScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -40,20 +40,27 @@ class _MyTopScreenState extends State<MyTopScreen> {
               height: 20,
             ),
             Expanded(
-              flex: 7,
+              flex: 70,
                 child: ListView(
               children: topsToShow,
             )),
             Expanded(
-              flex: 1,
-              child: DefButton(
-                onPressed: () {
-                  myTopRearrangeScreen.loadNextSongScreen(context);
-                  rearrangingSongsToAddList.clear();
-                  createButtonWasPressed = true;
-                },
-                text: 'Create',
-                outlineBorderRadius: true,
+              flex: 11,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(kOutlineBorderRadius),
+                ),
+                child: DefButton(
+                  onPressed: () {
+                    myTopRearrangeScreen.loadNextSongScreen(context);
+                    rearrangingSongsToAddList.clear();
+                    createButtonWasPressed = true;
+                  },
+                  text: 'Create',
+                  outlineBorderRadius: false,
+                ),
               ),
             ),
           ],

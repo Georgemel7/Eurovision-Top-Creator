@@ -19,47 +19,68 @@ class NextButton extends StatelessWidget {
   }
 }
 class DefButton extends StatelessWidget {
-  const DefButton({
+  DefButton({
     super.key,
     required this.onPressed,
     required this.text,
     this.height,
     this.outlineBorderRadius,
+    this.tonal,
+    this.color,
   });
 
   final Function onPressed;
   final String text;
   final double? height;
   final bool? outlineBorderRadius;
+  final bool? tonal;
+  final Color? color;
 
+  late ButtonStyle buttonStyleDef = ButtonStyle(
+      shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) =>
+          RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular((outlineBorderRadius ?? false) ? kOutlineBorderRadius : kBorderRadius))),
+      fixedSize: MaterialStateProperty.resolveWith<Size>(
+              (states) => Size(double.infinity, height ?? 0))
+  );
+  late ButtonStyle buttonStyleColor = ButtonStyle(
+    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (states) => color ?? Colors.white),
+      shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) =>
+          RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular((outlineBorderRadius ?? false) ? kOutlineBorderRadius : kBorderRadius))),
+      fixedSize: MaterialStateProperty.resolveWith<Size>(
+              (states) => Size(double.infinity, height ?? 0))
+  );
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: (){onPressed();},
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
-              if (states.contains(MaterialState.pressed)) {
-                return kThemeColor;
-              }
-              return kThemeColor;
-            },
+    if((tonal ?? false) == true){
+      return FilledButton.tonal(
+        onPressed: (){onPressed();},
+        style: color != null ? buttonStyleColor : buttonStyleDef,
+        child: SizedBox(
+          width: double.infinity,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18),
           ),
-          shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) =>
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular((outlineBorderRadius ?? false) ? kOutlineBorderRadius : kBorderRadius))),
-          fixedSize: MaterialStateProperty.resolveWith<Size>(
-                 (states) => Size(double.infinity, height ?? 0))
-    ),
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 18),
         ),
-      ),
-    );
+      );
+    } else {
+      return FilledButton(
+        onPressed: (){onPressed();},
+        style: color != null ? buttonStyleColor : buttonStyleDef,
+        child: SizedBox(
+          width: double.infinity,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
   }
 }
 
