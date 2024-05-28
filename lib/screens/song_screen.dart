@@ -25,7 +25,6 @@ class SongScreen extends StatefulWidget {
   final String song;
   final String link;
   final String about;
-  final bool bottomButtonIsVisible = false;
 
   String countryText() {
     List<String> c = country.split(' ');
@@ -38,30 +37,163 @@ class SongScreen extends StatefulWidget {
     }
   }
 
-  String videoID(String link){
+  String videoID(String link) {
     String _a = link.split('/')[3].split('?')[0];
     print('videoID: $_a');
     return _a;
   }
+
   late final _controller = YoutubePlayerController.fromVideoId(
     videoId: videoID(link),
     autoPlay: false,
     params: const YoutubePlayerParams(showFullscreenButton: true),
   );
-  List<Widget> columnWidgetList = <Widget>[];
+
+  String lyrics = '';
+  bool lyricsAreActivated = false;
+  bool nextButtonWasPressed = false;
+
+  Sections selected = Sections.about;
+
+  List<Widget> columnWidgetList(
+      BuildContext context, Function onSelectionChanged) {
+    List<Widget> list = <Widget>[
+      Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: AspectRatio(
+              aspectRatio: 1 / 1,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(kBorderRadius),
+                ),
+                child: Image.asset(
+                  'assets/singers/$country-SINGER.jpg',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Row(
+                    children: [
+                      const Text(
+                        'artist  ',
+                        style: TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.w200),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(singer.replaceAll('\n', ' '),
+                            style: kSongAndArtistTextStyle),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(
+                  color: Colors.black,
+                ),
+                FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Row(
+                    children: [
+                      const Text(
+                        'song title  ',
+                        style: TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.w200),
+                      ),
+                      FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Text(
+                            song,
+                            style: kSongAndArtistTextStyle,
+                          )),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(
+        height: 20,
+      ),
+      ClipRRect(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(kBorderRadius),
+        ),
+        child: YoutubePlayer(
+          controller: _controller,
+          aspectRatio: 16 / 9,
+        ),
+      ),
+      const SizedBox(
+        height: 10,
+      ),
+      const Divider(
+        color: Colors.black,
+      ),
+      Expanded(
+        flex: 4,
+        child: ListView(children: [
+          const SizedBox(
+            height: 10,
+          ),
+          SegmentedButton(
+            style: const ButtonStyle(
+                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
+              ),
+            ))),
+            segments: const [
+              ButtonSegment(
+                value: Sections.about,
+                label: Text('About'),
+                icon: Icon(Icons.question_mark),
+              ),
+              ButtonSegment(
+                value: Sections.lyrics,
+                label: Text('Lyrics'),
+                icon: Icon(Icons.lyrics),
+              ),
+            ],
+            selected: <Sections>{selected},
+            onSelectionChanged: (Set<Sections> newSelection) {
+              onSelectionChanged(newSelection);
+            },
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Text(
+            selected == Sections.about ? about : lyrics,
+          ),
+        ]),
+      )
+    ];
+    return list;
+  }
 
   @override
   State<SongScreen> createState() => _SongScreenState();
 }
 
 class _SongScreenState extends State<SongScreen> {
-  String lyrics = '';
-  bool lyricsAreActivated = false;
-  bool nextButtonWasPressed = false;
-
-  Sections selected = Sections.about;
   Future<void> fetchLyrics() async {
-    if (lyricsAreActivated == true) {
+    if (widget.lyricsAreActivated == true) {
       return;
     }
     final Uri apiUrl = Uri(
@@ -73,22 +205,30 @@ class _SongScreenState extends State<SongScreen> {
 
     if (response.statusCode == 200) {
       setState(() {
-        lyrics = json.decode(response.body)['lyrics'];
+        widget.lyrics = json.decode(response.body)['lyrics'];
       });
     } else {
       throw Exception('Failed to load lyrics');
     }
   }
 
+  void onSelectionChanged(Set<Sections> newSelection) {
+    {
+      setState(() {
+        fetchLyrics();
+        widget.selected = newSelection.first;
+      });
+    }
+    ;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eurovision 2024'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        appBar: AppBar(
+          title: const Text('Eurovision 2024'),
+        ),
+        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
             flex: 2,
             child: Container(
@@ -116,190 +256,20 @@ class _SongScreenState extends State<SongScreen> {
             ),
           ),
           Expanded(
-            flex: 15,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                gradient: kDefaultGradient,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(25),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: AspectRatio(
-                          aspectRatio: 1 / 1,
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(kBorderRadius),
-                            ),
-                            child: Image.asset(
-                              'assets/singers/${widget.country}-SINGER.jpg',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Row(
-                                children: [
-                                  const Text(
-                                    'artist  ',
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w200),
-                                  ),
-                                  FittedBox(
-                                    fit: BoxFit.fitWidth,
-                                    child: Text(
-                                        widget.singer.replaceAll('\n', ' '),
-                                        style: kSongAndArtistTextStyle),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Divider(
-                              color: Colors.black,
-                            ),
-                            FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Row(
-                                children: [
-                                  const Text(
-                                    'song title  ',
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w200),
-                                  ),
-                                  FittedBox(
-                                      fit: BoxFit.fitWidth,
-                                      child: Text(
-                                        widget.song,
-                                        style: kSongAndArtistTextStyle,
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ClipRRect(
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(kBorderRadius),
-                    ),
-                    child: YoutubePlayer(
-                      controller: widget._controller,
-                      aspectRatio: 16 / 9,
+              flex: 15,
+              child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    gradient: kDefaultGradient,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(25),
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const Divider(
-                    color: Colors.black,
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: ListView(
-                      children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        SegmentedButton(
-                          style: const ButtonStyle(
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20),
-                            ),
-                          ))),
-                          segments: const [
-                            ButtonSegment(
-                              value: Sections.about,
-                              label: Text('About'),
-                              icon: Icon(Icons.question_mark),
-                            ),
-                            ButtonSegment(
-                              value: Sections.lyrics,
-                              label: Text('Lyrics'),
-                              icon: Icon(Icons.lyrics),
-                            ),
-                          ],
-                          selected: <Sections>{selected},
-                          onSelectionChanged: (Set<Sections> newSelection) {
-                            setState(() {
-                              fetchLyrics();
-                              selected = newSelection.first;
-                            });
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          selected == Sections.about ? widget.about : lyrics,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: widget.bottomButtonIsVisible,
-                    child: Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                        child: DefButton(
-                          tonal: true,
-                          onPressed: () {
-                            if (!nextButtonWasPressed) {
-                              rearrangingSongsToAddList.add(
-                                SongCardR(
-                                  songName: widget.song,
-                                  singer: widget.singer,
-                                  country: widget.country,
-                                  videoLink: widget.link,
-                                  info: widget.about,
-                                  key: Key('$counter'),
-                                ),
-                              );
-                            }
-                            nextButtonWasPressed = true;
-                            counter++;
-                            Navigator.popAndPushNamed(context, '/rearrange');
-                          },
-                          text: 'Next',
-                          outlineBorderRadius: true,
-                          //TODO: remove visibility
-                        )
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        widget.columnWidgetList(context, onSelectionChanged),
+                  )))
+        ]));
   }
 }
-

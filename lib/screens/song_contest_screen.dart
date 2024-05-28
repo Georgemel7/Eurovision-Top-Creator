@@ -192,7 +192,7 @@ class _SongContestState extends State<SongContest> {
     'United Kingdom',
     'France',
     'Spain',
-    'Sweden'
+    'Switzerland'
   ];
   TimeAndDate finalTime = TimeAndDate(
       day: 10, month: 5, year: 2025, second: 0, hour: 21, minute: 0);
